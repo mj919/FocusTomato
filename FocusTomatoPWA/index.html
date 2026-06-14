@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Focus Tomato - 专注番茄钟</title>
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<!-- 登录页面 -->
+<div id="login" class="card">
+  <h2><span class="tomato-icon">🍅</span> Focus Tomato</h2>
+  <p style="color: var(--text-light); margin-bottom: 20px;">专注每一刻，遇见更好的自己</p>
+  <input id="code" placeholder="请输入邀请码" type="password">
+  <button class="btn-primary" onclick="login()">开始专注</button>
+</div>
+
+<!-- 主应用 -->
+<div id="app" style="display:none">
+  <div class="glass">
+    <!-- 标签页 -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('timer')">⏱️ 计时</button>
+      <button class="tab-btn" onclick="switchTab('tasks')">📝 任务</button>
+      <button class="tab-btn" onclick="switchTab('stats')">📊 统计</button>
+      <button class="tab-btn" onclick="switchTab('settings')">⚙️ 设置</button>
+    </div>
+
+    <!-- 计时器页面 -->
+    <div id="tab-timer" class="tab-content active">
+      <h1><span class="tomato-icon">🍅</span> Focus Tomato</h1>
+      
+      <!-- 模式切换 -->
+      <div class="mode-buttons">
+        <button class="mode-btn active" data-mode="focus" onclick="setMode('focus')">专注 25分</button>
+        <button class="mode-btn" data-mode="short" onclick="setMode('short')">短休息 5分</button>
+        <button class="mode-btn" data-mode="long" onclick="setMode('long')">长休息 15分</button>
+      </div>
+      
+      <!-- 计时器显示 -->
+      <div id="timer">25:00</div>
+      
+      <!-- 控制按钮 -->
+      <div class="buttons">
+        <button class="btn-primary" id="startBtn" onclick="startTimer()">▶ 开始</button>
+        <button class="btn-secondary" onclick="pauseTimer()">⏸ 暂停</button>
+        <button class="btn-danger" onclick="resetTimer()">↻ 重置</button>
+      </div>
+      
+      <!-- 每日目标进度 -->
+      <div class="goal-section">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 14px; color: var(--text-dark);">🎯 今日目标</span>
+          <span id="goalText" style="font-size: 14px; color: var(--coral);">0 / 8 番茄</span>
+        </div>
+        <div class="goal-progress">
+          <div class="goal-bar" id="goalBar" style="width: 0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 任务页面 -->
+    <div id="tab-tasks" class="tab-content">
+      <h3 style="text-align: center; margin-bottom: 20px;">📋 今日任务</h3>
+      
+      <div class="task-input-group">
+        <input type="text" id="taskInput" placeholder="添加新任务..." onkeypress="if(event.key==='Enter')addTask()">
+        <button class="btn-primary btn-small" onclick="addTask()">+</button>
+      </div>
+      
+      <div class="task-list" id="taskList"></div>
+      
+      <div style="margin-top: 15px; text-align: center; color: var(--text-light); font-size: 13px;">
+        <span id="taskStats">已完成 0 / 0 个任务</span>
+      </div>
+    </div>
+
+    <!-- 统计页面 -->
+    <div id="tab-stats" class="tab-content">
+      <h3 style="text-align: center; margin-bottom: 20px;">📊 专注统计</h3>
+      
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="todayCount">0</div>
+          <div class="stat-label">今日番茄</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="todayMinutes">0</div>
+          <div class="stat-label">专注分钟</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="totalCount">0</div>
+          <div class="stat-label">累计番茄</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="totalMinutes">0</div>
+          <div class="stat-label">累计分钟</div>
+        </div>
+      </div>
+      
+      <div class="history-section">
+        <h4 style="margin-bottom: 15px; color: var(--text-dark);">📅 最近记录</h4>
+        <div id="historyList"></div>
+      </div>
+    </div>
+
+    <!-- 设置页面 -->
+    <div id="tab-settings" class="tab-content">
+      <h3 style="text-align: center; margin-bottom: 20px;">⚙️ 设置</h3>
+      
+      <div class="settings-panel">
+        <div class="setting-row">
+          <label>🍅 专注时长</label>
+          <input type="number" id="focusTime" value="25" min="1" max="60" onchange="saveSettings()"> 分钟
+        </div>
+        <div class="setting-row">
+          <label>☕ 短休息时长</label>
+          <input type="number" id="shortBreak" value="5" min="1" max="30" onchange="saveSettings()"> 分钟
+        </div>
+        <div class="setting-row">
+          <label>🌙 长休息时长</label>
+          <input type="number" id="longBreak" value="15" min="1" max="60" onchange="saveSettings()"> 分钟
+        </div>
+        <div class="setting-row">
+          <label>🎯 每日目标</label>
+          <input type="number" id="dailyGoal" value="8" min="1" max="20" onchange="saveSettings()"> 番茄
+        </div>
+        
+        <div class="setting-row">
+          <label>🔔 提示音</label>
+          <div class="volume-control">
+            <input type="checkbox" id="soundEnabled" checked onchange="saveSettings()">
+            <input type="range" class="volume-slider" id="volume" min="0" max="100" value="50" onchange="saveSettings()">
+            <span id="volumeValue">50%</span>
+          </div>
+        </div>
+        
+        <div class="setting-row" style="margin-top: 20px;">
+          <button class="btn-secondary btn-small" onclick="resetAllData()">🗑️ 重置所有数据</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
